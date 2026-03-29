@@ -1,0 +1,182 @@
+# TravelForge - Планировщик поездок
+
+Полнофункциональное приложение для планирования поездок с учетом бюджета и предпочтений.
+
+## 🏗️ Архитектура
+
+- **Фронтенд**: React + TypeScript + React Router
+- **Бэкенд**: Express.js + TypeScript + Nodemon
+- **База данных**: In-memory (структуры данных JavaScript)
+- **API**: RESTful API с CORS поддержкой
+
+## 🚀 Быстрый старт
+
+### Автоматический запуск (рекомендуется)
+
+```bash
+./start-app.sh
+```
+
+### Ручной запуск
+
+1. **Запуск бэкенда:**
+
+```bash
+cd travelforge-backend
+npm install
+npm run dev
+```
+
+2. **Запуск фронтенда:**
+
+```bash
+cd travelforge-mfe
+npm install
+npm start
+```
+
+## 📱 Функциональность
+
+### Фронтенд
+
+- ✅ Поиск городов по бюджету и предпочтениям
+- ✅ Детальная информация о городах
+- ✅ Настройка распределения бюджета
+- ✅ Конвертер валют
+- ✅ TravelBot (чат-бот для советов)
+- ✅ Сохранение поездок
+- ✅ Интерактивная карта
+
+### Бэкенд API
+
+- ✅ `GET /api/cities` - список всех городов
+- ✅ `GET /api/cities/search` - поиск городов
+- ✅ `GET /api/cities/:id` - информация о городе
+- ✅ `GET /api/trips` - сохраненные поездки
+- ✅ `POST /api/trips` - сохранение поездки
+- ✅ `DELETE /api/trips/:id` - удаление поездки
+- ✅ `GET /api/currencies/rates` - курсы валют
+- ✅ `GET /api/currencies/convert` - конвертация валют
+- ✅ `POST /api/travelbot/ask` - вопрос TravelBot
+
+## 🌐 Доступные URL
+
+- **Фронтенд**: http://localhost:3000
+- **Бэкенд API**: http://localhost:5000
+- **Health Check**: http://localhost:5000/health
+
+## 🛠️ Технические детали
+
+### Структура проекта
+
+```
+project/
+├── travelforge-mfe/             # React фронтенд
+│   ├── src/
+│   │   ├── components/          # React компоненты
+│   │   ├── pages/              # Страницы приложения
+│   │   ├── context/            # React Context
+│   │   ├── services/           # API сервисы
+│   │   └── types.ts            # TypeScript типы
+│   └── package.json
+├── travelforge-backend/          # Express бэкенд
+│   ├── src/
+│   │   ├── controllers/         # API контроллеры
+│   │   ├── models/             # Модели данных
+│   │   ├── routes/             # API маршруты
+│   │   ├── services/           # Бизнес логика
+│   │   └── types/              # TypeScript типы
+│   └── package.json
+└── start-app.sh                # Скрипт запуска
+```
+
+### Особенности реализации
+
+- **Типизация**: Полная типизация TypeScript на фронтенде и бэкенде
+- **CORS**: Настроен для работы с localhost:3000
+- **Обработка ошибок**: Graceful fallback на localStorage при недоступности API
+- **Валидация**: Валидация входных данных на бэкенде
+- **Структуры данных**: In-memory хранение с возможностью расширения
+
+## 🔧 Разработка
+
+### Добавление новых городов
+
+Отредактируйте `travelforge-backend/src/models/CityModel.ts`
+
+### Добавление новых валют
+
+Отредактируйте `travelforge-backend/src/models/CurrencyModel.ts`
+
+### Расширение TravelBot
+
+Отредактируйте `travelforge-backend/src/services/TravelBotService.ts`
+
+## 📊 Примеры API запросов
+
+### Поиск городов
+
+```bash
+curl "http://localhost:5000/api/cities/search?budget=1000&startDate=2024-01-01&endDate=2024-01-07&prefCulture=70&prefNature=30&prefParty=50"
+```
+
+### Сохранение поездки
+
+```bash
+curl -X POST http://localhost:5000/api/trips \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cityId": "lisbon",
+    "params": {
+      "budget": 1000,
+      "startDate": "2024-01-01",
+      "endDate": "2024-01-07",
+      "origin": "Москва",
+      "prefCulture": 70,
+      "prefNature": 30,
+      "prefParty": 50
+    },
+    "adjustedBudget": {
+      "flights": 40,
+      "lodging": 30,
+      "food": 15,
+      "local": 10,
+      "buffer": 5
+    },
+    "total": 1000
+  }'
+```
+
+### Вопрос TravelBot
+
+```bash
+curl -X POST http://localhost:5000/api/travelbot/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Где попробовать местную кухню?"}'
+```
+
+## ✅ Исправленные проблемы
+
+### TypeScript ошибки
+
+Все ошибки TypeScript были исправлены:
+
+- ✅ Добавлена типизация для всех API методов
+- ✅ Добавлены недостающие типы в `types.ts`
+- ✅ Исправлены неиспользуемые переменные
+- ✅ Проект успешно компилируется
+
+### Решенные проблемы:
+
+1. **TS2345: Argument of type 'unknown'** - добавлена типизация к API сервису
+2. **TS18046: 'response' is of type 'unknown'** - добавлены типы возвращаемых значений
+3. **ESLint warnings** - исправлены неиспользуемые переменные
+
+## 🎯 Следующие шаги
+
+- [ ] Интеграция с реальной базой данных (PostgreSQL/MongoDB)
+- [ ] Аутентификация пользователей
+- [ ] Интеграция с реальными API валют
+- [ ] Интеграция с AI для TravelBot
+- [ ] Мобильная версия
+- [ ] Тестирование (Jest/Cypress)
