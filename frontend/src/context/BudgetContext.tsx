@@ -5,8 +5,40 @@ import React, {
   useState,
   useEffect,
 } from 'react'
+import { BudgetBreakdown, SavedTrip, SearchParams } from '../types'
+import { apiService } from '../services/api'
 
 const LS_KEY = 'budget-compass.savedTrips.v1'
+
+type Ctx = {
+  params: SearchParams
+  setParams: (p: Partial<SearchParams>) => void
+  adjusted: BudgetBreakdown
+  setAdjusted: (b: Partial<BudgetBreakdown>) => void
+  saved: SavedTrip[]
+  saveTrip: (t: Omit<SavedTrip, 'id' | 'savedAt'>) => void
+  removeTrip: (id: string) => void
+}
+
+const defaultParams: SearchParams = {
+  budget: 1000,
+  startDate: new Date().toISOString().slice(0, 10),
+  endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5)
+    .toISOString()
+    .slice(0, 10),
+  origin: 'Москва',
+  prefCulture: 50,
+  prefNature: 50,
+  prefParty: 50,
+}
+
+const defaultBudget: BudgetBreakdown = {
+  flights: 35,
+  lodging: 30,
+  food: 20,
+  local: 10,
+  buffer: 5,
+}
 
 const BudgetContext = createContext<Ctx | null>(null)
 
