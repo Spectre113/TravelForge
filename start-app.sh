@@ -1,38 +1,69 @@
 #!/bin/bash
+set -e
 
-echo "🚀 Запуск Budget Compass приложения..."
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$ROOT_DIR/backend"
+FRONTEND_DIR="$ROOT_DIR/frontend"
 
-# Функция для завершения всех процессов при выходе
+echo "Starting TravelForge..."
+
+# ── env checks ────────────────────────────────────────────────────────────
+if [ ! -f "$BACKEND_DIR/.env" ]; then
+  echo "WARN: backend/.env not found — copying from env.example"
+  cp "$BACKEND_DIR/env.example" "$BACKEND_DIR/.env"
+fi
+
+if [ ! -f "$FRONTEND_DIR/.env" ]; then
+  echo "WARN: frontend/.env not found — copying from .env.example"
+  cp "$FRONTEND_DIR/.env.example" "$FRONTEND_DIR/.env"
+fi
+
+# ── graceful shutdown ──────────────────────────────────────────────────────
 cleanup() {
-    echo "🛑 Остановка серверов..."
-    kill $BACKEND_PID $FRONTEND_PID 2>/dev/null
-    exit
+  echo ""
+  echo "Stopping servers (PID backend=$BACKEND_PID frontend=$FRONTEND_PID)..."
+  kill "$BACKEND_PID" "$FRONTEND_PID" 2>/dev/null
+  wait "$BACKEND_PID" "$FRONTEND_PID" 2>/dev/null
+  echo "Done."
+  exit 0
 }
-
-# Устанавливаем обработчик сигналов
 trap cleanup SIGINT SIGTERM
 
-# Запускаем бэкенд
-echo "📡 Запуск бэкенда..."
-cd backend
+# ── start backend ─────────────────────────────────────────────────────────
+echo "[backend] Starting on http://localhost:5000 ..."
+cd "$BACKEND_DIR"
 npm run dev &
 BACKEND_PID=$!
 
-# Ждем запуска бэкенда
-sleep 3
+# Wait until health endpoint responds (max 15 s)
+echo "[backend] Waiting for health check..."
+for i in $(seq 1 15); do
+  sleep 1
+  if curl -sf http://localhost:5000/health > /dev/null 2>&1; then
+    echo "[backend] Ready."
+    break
+  fi
+  if [ "$i" -eq 15 ]; then
+    echo "ERROR: backend did not start in 15s. Check logs above."
+    kill "$BACKEND_PID" 2>/dev/null
+    exit 1
+  fi
+done
 
-# Запускаем фронтенд
-echo "🌐 Запуск фронтенда..."
-cd ../frontend
+# ── start frontend ────────────────────────────────────────────────────────
+echo "[frontend] Starting on http://localhost:3000 ..."
+cd "$FRONTEND_DIR"
 npm start &
 FRONTEND_PID=$!
 
-echo "✅ Приложение запущено!"
-echo "📊 Бэкенд: http://localhost:5000"
-echo "🌐 Фронтенд: http://localhost:3000"
-echo "📋 Health check: http://localhost:5000/health"
 echo ""
-echo "Нажмите Ctrl+C для остановки"
+echo "TravelForge is running:"
+echo "  Frontend:  http://localhost:3000"
+echo "  Backend:   http://localhost:5000"
+echo "  Health:    http://localhost:5000/health"
+echo "  Metrics:   http://localhost:5000/metrics"
+echo "  Prometheus:http://localhost:5000/metrics/prometheus"
+echo ""
+echo "Press Ctrl+C to stop all servers."
 
-# Ждем завершения
 wait
