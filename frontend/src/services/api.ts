@@ -12,7 +12,7 @@ import {
 } from '../types'
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api'
+  process.env.REACT_APP_API_URL ?? '/api'
 
 const TOKEN_KEY = 'budget-compass.auth.token'
 

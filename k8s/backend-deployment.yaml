@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travelforge-backend
+  namespace: travelforge
+  labels:
+    app.kubernetes.io/name: travelforge-backend
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: travelforge-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: travelforge-backend
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: backend
+          image: travelforge-backend:secure
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/certs/gigachat-ca-bundle.crt
+          envFrom:
+            - configMapRef:
+                name: travelforge-config
+            - secretRef:
+                name: travelforge-secret
+          ports:
+            - containerPort: 5000
+              name: http
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: gigachat-ca
+              mountPath: /etc/ssl/certs/gigachat-ca-bundle.crt
+              subPath: gigachat-ca-bundle.crt
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: gigachat-ca
+          configMap:
+            name: gigachat-ca

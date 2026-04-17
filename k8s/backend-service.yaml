@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: travelforge-backend
+  namespace: travelforge
+  labels:
+    app.kubernetes.io/name: travelforge-backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "5000"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: travelforge-backend
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000

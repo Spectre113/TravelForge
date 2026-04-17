@@ -96,3 +96,9 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+# Local secret material
+.secrets/
+
+# Local Kubernetes secret manifest with real values
+k8s/secret.yaml

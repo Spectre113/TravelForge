@@ -1,0 +1,45 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - backend-service.yaml
+  - frontend-service.yaml
+  - backend-deployment.yaml
+  - frontend-deployment.yaml
+  - monitoring-prometheus-service.yaml
+  - monitoring-prometheus-deployment.yaml
+  - monitoring-grafana-service.yaml
+  - monitoring-grafana-deployment.yaml
+  - ingress.yaml
+  - networkpolicy-default-deny.yaml
+  - networkpolicy-allow-ingress-to-frontend.yaml
+  - networkpolicy-allow-ingress-to-backend.yaml
+  - networkpolicy-allow-backend-egress-dns.yaml
+  - networkpolicy-allow-backend-egress-web.yaml
+  - networkpolicy-allow-prometheus-to-backend.yaml
+  - networkpolicy-allow-grafana-to-prometheus.yaml
+  - networkpolicy-allow-ingress-to-grafana.yaml
+  - networkpolicy-allow-ingress-to-prometheus.yaml
+  - networkpolicy-allow-monitoring-egress-dns.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: travelforge-prometheus-config
+    namespace: travelforge
+    files:
+      - monitoring/prometheus/prometheus.yml
+  - name: travelforge-grafana-datasources
+    namespace: travelforge
+    files:
+      - monitoring/grafana/provisioning/datasources/datasource.yml
+  - name: travelforge-grafana-dashboard-provider
+    namespace: travelforge
+    files:
+      - monitoring/grafana/provisioning/dashboards/dashboard.yml
+  - name: travelforge-grafana-dashboard
+    namespace: travelforge
+    files:
+      - monitoring/grafana/dashboards/travelforge-overview.json

@@ -1,182 +1,244 @@
-# TravelForge - Планировщик поездок
+# TravelForge
+**TravelForge** - учебный full-stack проект для планирования поездок с учетом бюджета, пользовательских предпочтений и ответов TravelBot на базе GigaChat.
 
-Полнофункциональное приложение для планирования поездок с учетом бюджета и предпочтений.
+## Состав проекта
+- **frontend** — React + TypeScript SPA;
+- **backend** — Express + TypeScript API с JWT-аутентификацией и Prometheus-метриками;
+- **k8s** — Kubernetes-манифесты для локального кластера и учебного деплоя.
 
-## 🏗️ Архитектура
+## Функциональность
+- каталог городов и получение деталей по выбранному направлению;
+- создание и удаление поездок;
+- конвертация валют;
+- TravelBot с интеграцией GigaChat;
+- health-check и экспорт метрик через `/metrics`.
 
-- **Фронтенд**: React + TypeScript + React Router
-- **Бэкенд**: Express.js + TypeScript + Nodemon
-- **База данных**: In-memory (структуры данных JavaScript)
-- **API**: RESTful API с CORS поддержкой
+## Технологии
+### Frontend
+- React
+- TypeScript
+- React Router
+- Recharts
+- Leaflet
 
-## 🚀 Быстрый старт
+### Backend
+- Node.js
+- Express
+- TypeScript
+- JWT
+- Axios
+- Helmet
+- Pino HTTP
 
-### Автоматический запуск (рекомендуется)
+### Infrastructure
+- Docker
+- Kubernetes / Kustomize
+- Prometheus-compatible metrics
+
+## Структура
+```text
+TravelForge/
+├── backend/
+├── frontend/
+├── k8s/
+├── start-app.sh
+└── README.md
+```
+
+## Основные endpoints
+### Backend
+- `/health`
+- `/metrics`
+- `/metrics/json`
+- `/api/auth/*`
+- `/api/cities/*`
+- `/api/trips/*`
+- `/api/currencies/*`
+- `/api/travelbot/*`
+Фактический набор маршрутов определяется файлами `backend/src/routes/*`.
+
+## Метрики
+Экспорт метрик выполняется через `/metrics` в формате Prometheus exposition format.
+
+**Примеры метрик:**
+- `travelforge_requests_total`
+- `travelforge_http_requests_in_flight`
+- `travelforge_process_heap_used_bytes`
+- `travelforge_heap_used_bytes`
+- `travelforge_process_rss_bytes`
+- `travelforge_process_cpu_user_seconds_total`
+- `travelforge_process_cpu_system_seconds_total`
+- `travelforge_event_loop_lag_ms`
+- `travelforge_request_duration_ms_*`
+- `travelforge_route_requests_total`
+- `travelforge_route_avg_latency_ms`
+- `travelforge_gigachat_requests_total`
+- `travelforge_gigachat_request_duration_ms_*`
+
+## Переменные окружения
+### Backend
+```env
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=change-me
+GIGACHAT_CLIENT_ID=...
+GIGACHAT_SECRET=...
+GIGACHAT_SCOPE=GIGACHAT_API_PERS
+GIGACHAT_TIMEOUT=60
+GIGACHAT_TLS_VERIFY=1
+ALLOWED_ORIGINS=http://localhost:3000
+```
+
+### Frontend
+Параметры фронтенда определяются файлами `frontend/.env*`.
+
+## Локальный запуск
+### Через общий скрипт
 
 ```bash
+chmod +x start-app.sh
 ./start-app.sh
 ```
 
+**Ожидаемые адреса:**
+- frontend: `http://localhost:3000`
+- backend: `http://localhost:5000`
+
 ### Ручной запуск
-
-1. **Запуск бэкенда:**
-
+**Backed:**
 ```bash
-cd travelforge-backend
+cd backend
+cp -n env.example .env
 npm install
 npm run dev
 ```
 
-2. **Запуск фронтенда:**
-
+**Frontend:**
 ```bash
-cd travelforge-mfe
+cd frontend
+cp -n .env.example .env
 npm install
 npm start
 ```
 
-## 📱 Функциональность
-
-### Фронтенд
-
-- ✅ Поиск городов по бюджету и предпочтениям
-- ✅ Детальная информация о городах
-- ✅ Настройка распределения бюджета
-- ✅ Конвертер валют
-- ✅ TravelBot (чат-бот для советов)
-- ✅ Сохранение поездок
-- ✅ Интерактивная карта
-
-### Бэкенд API
-
-- ✅ `GET /api/cities` - список всех городов
-- ✅ `GET /api/cities/search` - поиск городов
-- ✅ `GET /api/cities/:id` - информация о городе
-- ✅ `GET /api/trips` - сохраненные поездки
-- ✅ `POST /api/trips` - сохранение поездки
-- ✅ `DELETE /api/trips/:id` - удаление поездки
-- ✅ `GET /api/currencies/rates` - курсы валют
-- ✅ `GET /api/currencies/convert` - конвертация валют
-- ✅ `POST /api/travelbot/ask` - вопрос TravelBot
-
-## 🌐 Доступные URL
-
-- **Фронтенд**: http://localhost:3000
-- **Бэкенд API**: http://localhost:5000
-- **Health Check**: http://localhost:5000/health
-
-## 🛠️ Технические детали
-
-### Структура проекта
-
-```
-project/
-├── travelforge-mfe/             # React фронтенд
-│   ├── src/
-│   │   ├── components/          # React компоненты
-│   │   ├── pages/              # Страницы приложения
-│   │   ├── context/            # React Context
-│   │   ├── services/           # API сервисы
-│   │   └── types.ts            # TypeScript типы
-│   └── package.json
-├── travelforge-backend/          # Express бэкенд
-│   ├── src/
-│   │   ├── controllers/         # API контроллеры
-│   │   ├── models/             # Модели данных
-│   │   ├── routes/             # API маршруты
-│   │   ├── services/           # Бизнес логика
-│   │   └── types/              # TypeScript типы
-│   └── package.json
-└── start-app.sh                # Скрипт запуска
-```
-
-### Особенности реализации
-
-- **Типизация**: Полная типизация TypeScript на фронтенде и бэкенде
-- **CORS**: Настроен для работы с localhost:3000
-- **Обработка ошибок**: Graceful fallback на localStorage при недоступности API
-- **Валидация**: Валидация входных данных на бэкенде
-- **Структуры данных**: In-memory хранение с возможностью расширения
-
-## 🔧 Разработка
-
-### Добавление новых городов
-
-Отредактируйте `travelforge-backend/src/models/CityModel.ts`
-
-### Добавление новых валют
-
-Отредактируйте `travelforge-backend/src/models/CurrencyModel.ts`
-
-### Расширение TravelBot
-
-Отредактируйте `travelforge-backend/src/services/TravelBotService.ts`
-
-## 📊 Примеры API запросов
-
-### Поиск городов
-
+**Проверка backend:**
 ```bash
-curl "http://localhost:5000/api/cities/search?budget=1000&startDate=2024-01-01&endDate=2024-01-07&prefCulture=70&prefNature=30&prefParty=50"
+curl http://localhost:5000/health
+curl http://localhost:5000/metrics
 ```
 
-### Сохранение поездки
+## Локальный запуск в Kubernetes
+Ниже приведен базовый сценарий для `minikube`.
 
+### Подготовка кластера
 ```bash
-curl -X POST http://localhost:5000/api/trips \
-  -H "Content-Type: application/json" \
-  -d '{
-    "cityId": "lisbon",
-    "params": {
-      "budget": 1000,
-      "startDate": "2024-01-01",
-      "endDate": "2024-01-07",
-      "origin": "Москва",
-      "prefCulture": 70,
-      "prefNature": 30,
-      "prefParty": 50
-    },
-    "adjustedBudget": {
-      "flights": 40,
-      "lodging": 30,
-      "food": 15,
-      "local": 10,
-      "buffer": 5
-    },
-    "total": 1000
-  }'
+minikube start
+minikube addons enable ingress
 ```
 
-### Вопрос TravelBot
+### Подготовка секретов
+На основе шаблона `k8s/secret.example.yaml` формируется рабочий `k8s/secret.yaml` с фактическими значениями:
+- `JWT_SECRET`
+- `GIGACHAT_CLIENT_ID`
+- `GIGACHAT_SECRET`
 
+При использовании `kustomize` файл `secret.yaml` должен быть включен в `k8s/kustomization.yaml`, либо применяться отдельно.
+
+### Сборка образов
 ```bash
-curl -X POST http://localhost:5000/api/travelbot/ask \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Где попробовать местную кухню?"}'
+cd backend
+npm install
+npm run build
+docker build -t travelforge-backend:local .
+
+cd ../frontend
+npm install
+npm run build
+docker build -t travelforge-frontend:local .
+
+cd ..
 ```
 
-## ✅ Исправленные проблемы
+### Загрузка образов в minikube
+```bash
+minikube image load travelforge-backend:local
+minikube image load travelforge-frontend:local
+```
 
-### TypeScript ошибки
+### Применение манифестов
+```bash
+kubectl apply -k k8s
+kubectl -n travelforge rollout status deployment/travelforge-backend
+kubectl -n travelforge rollout status deployment/travelforge-frontend
+```
 
-Все ошибки TypeScript были исправлены:
+### Проверка backend
+```bash
+kubectl -n travelforge port-forward svc/travelforge-backend 5000:5000
+```
 
-- ✅ Добавлена типизация для всех API методов
-- ✅ Добавлены недостающие типы в `types.ts`
-- ✅ Исправлены неиспользуемые переменные
-- ✅ Проект успешно компилируется
+**В отдельном терминале:**
+```bash
+curl http://127.0.0.1:5000/health
+curl http://127.0.0.1:5000/metrics
+```
 
-### Решенные проблемы:
+### Проверка frontend
+```bash
+kubectl -n travelforge port-forward svc/travelforge-frontend 8080:80
+```
 
-1. **TS2345: Argument of type 'unknown'** - добавлена типизация к API сервису
-2. **TS18046: 'response' is of type 'unknown'** - добавлены типы возвращаемых значений
-3. **ESLint warnings** - исправлены неиспользуемые переменные
+**Доступ:**
+- `http://127.0.0.1:8080`
 
-## 🎯 Следующие шаги
+## Обновление backend в локальном кластере
+```bash
+cd backend
+npm run build
+docker build -t travelforge-backend:metrics-vX .
+minikube image load travelforge-backend:metrics-vX
+kubectl -n travelforge set image deployment/travelforge-backend backend=travelforge-backend:metrics-vX
+kubectl -n travelforge rollout status deployment/travelforge-backend
+```
 
-- [ ] Интеграция с реальной базой данных (PostgreSQL/MongoDB)
-- [ ] Аутентификация пользователей
-- [ ] Интеграция с реальными API валют
-- [ ] Интеграция с AI для TravelBot
-- [ ] Мобильная версия
-- [ ] Тестирование (Jest/Cypress)
+## Частые проблемы
+### `curl: (7) Failed to connect to 127.0.0.1:5000`
+Обычно это означает отсутствие активного `port-forward` либо недоступность backend pod.
+
+### Пустые панели Grafana
+**Типовые причины:**
+- серия отсутствует в `/metrics`;
+- используется устаревшее имя метрики;
+- для `rate()` накоплено недостаточно scrape-точек;
+- Prometheus не выполняет scrape target.
+
+### После rollout локальный доступ пропадает
+После пересоздания pod ранее открытый `port-forward` перестает быть валидным и поднимается повторно.
+
+### Проблемы с ingress
+**Следует проверить:**
+- наличие ingress controller;
+- корректность `ingressClassName`;
+- резолвинг host в `/etc/hosts`;
+- наличие TLS secret, если ingress использует TLS.
+
+## Деплой в учебный Kubernetes-кластер
+Типовой сценарий для внешнего кластера включает:
+1. сборку frontend и backend образов;
+2. публикацию образов в доступный registry;
+3. замену image reference в deployment-манифестах;
+4. подготовку секретов под целевое окружение;
+5. применение namespace, secrets, configmap, deployment, service и ingress;
+6. проверку rollout, `/health`, `/metrics` и базового пользовательского сценария.
+
+Если registry отсутствует, способ доставки образов определяется ограничениями учебной инфраструктуры: локальный registry, импорт на ноды или иной поддерживаемый механизм.
+
+## Диагностические команды
+```bash
+kubectl get pods -n travelforge -o wide
+kubectl get svc -n travelforge
+kubectl get ingress -n travelforge
+kubectl logs -n travelforge deploy/travelforge-backend --tail=100
+kubectl -n travelforge rollout status deployment/travelforge-backend
+kubectl -n travelforge rollout status deployment/travelforge-frontend
+```
