@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: travelforge-backend
+  namespace: travelforge
+  labels:
+    app.kubernetes.io/name: travelforge-backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: travelforge-backend
+  namespaceSelector:
+    matchNames:
+      - travelforge
+  endpoints:
+    - port: http
+      path: /metrics/prometheus
+      interval: 15s

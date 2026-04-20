@@ -58,12 +58,17 @@ app.get('/health', (_req, res) => {
 
 // Metrics endpoints
 app.get('/metrics', (_req, res) => {
-  res.json(getMetrics())
+  res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
+  res.send(getPrometheusMetrics())
 })
 
 app.get('/metrics/prometheus', (_req, res) => {
-  res.set('Content-Type', 'text/plain; version=0.0.4')
+  res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
   res.send(getPrometheusMetrics())
+})
+
+app.get('/metrics/json', (_req, res) => {
+  res.json(getMetrics())
 })
 
 app.use(notFoundHandler)
